@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const serverUrl = 'ws://localhost:3000';
+const serverUrl = 'ws://server:3000';
 const ws = new WebSocket(serverUrl);
 
 ws.on('open', () => {

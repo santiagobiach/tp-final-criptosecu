@@ -20,11 +20,11 @@ const server = http.createServer((req, res) => {
                     client.send(JSON.stringify(command));
                 }
             });
-            res.writeHead(200, {'Content-Type': 'application/json'});
-            res.end(JSON.stringify({status: 'Command received and pushed to clients'}));
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'Command received and pushed to clients' }));
         });
     } else {
-        res.writeHead(404, {'Content-Type': 'text/plain'});
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
     }
 });
