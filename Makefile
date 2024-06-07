@@ -15,3 +15,4 @@ reset-all: down-all start-all
 
 logs:
 	docker-compose logs
+

