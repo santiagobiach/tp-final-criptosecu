@@ -4,6 +4,7 @@ PWD := $(shell pwd)
 build-all:
 	docker build -t serverbn server
 	docker build -t clientbn client
+	docker build -t mockserver mock-server
 
 start-all:
 	docker-compose up -d

@@ -52,7 +52,7 @@ def write_to_file(content):
     with open('docker-compose.yml', 'w') as f:
         f.write(content)
 
-# Generate docker-compose.yml file with 3 client services
+# Número de bots configurable
 num_clients = 7
 compose_content = generate_docker_compose(num_clients)
 write_to_file(compose_content)
