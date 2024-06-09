@@ -37,3 +37,12 @@ services:
       - ./server/server.js:/usr/src/app/server.js
       - ./server/results_handlers.js:/usr/src/app/results_handlers.js
       - ./server/setup.js:/usr/src/app/setup.js
+  mock-server:
+    container_name: mock-server
+    image: mockserver:latest
+    networks:
+      - intranet
+    ports:
+      - 7000:7000
+    volumes:
+      - ./mock-server/server.js:/usr/src/app/server.js

