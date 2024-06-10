@@ -38,6 +38,11 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'Command received and pushed to clients' }));
         });
+    } else if (req.method === 'GET' && req.url === '/bots') {
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ bots: Object.keys(clients) }));
+
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');

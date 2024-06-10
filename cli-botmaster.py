@@ -98,6 +98,11 @@ class BotMasterCLI(cmd.Cmd):
             except Exception as e:
                 print(f"Error: {e}")
 
+    def do_query_bots(self, args):
+        """Query for all the bots connected to the server"""
+        print("Usage: query_bots")
+        response = requests.get(url + "/bots")
+        print(response.json())
     def do_quit(self, line):
         """Exit the CLI."""
         return True
