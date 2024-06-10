@@ -2,6 +2,8 @@ import cmd
 import json
 import os
 import requests
+import asyncio
+from websockets.sync.client import connect
 
 # URL del bot server
 url = 'http://localhost:3000/'
@@ -98,11 +100,44 @@ class BotMasterCLI(cmd.Cmd):
             except Exception as e:
                 print(f"Error: {e}")
 
-    def do_query_bots(self, args):
+    def do_bots(self, args):
         """Query for all the bots connected to the server"""
-        print("Usage: query_bots")
+        
         response = requests.get(url + "/bots")
         print(response.json())
+
+    def do_shell(self, args):
+        """Create a shell in a bot (Args: objective)"""
+        args_vec = parse_args(args)
+        if len(args_vec) < 1:
+            print("Usage: shell botname")
+        else:
+            with connect("ws://localhost:8080") as websocket:
+                print(f"({args_vec[0]})>> Type quit to exit")
+                # Loop indefinitely
+                while True:
+                    # Ask for user input
+                    user_input = input(f"({args_vec[0]})>> ")
+
+                    if user_input.lower() == 'quit':
+                        print("Exiting the loop.")
+                        break
+
+                    data = {
+                        'id': self.command_id,
+                        'sh_cmd': user_input,
+                        'objective': args_vec[0]
+                    }
+                    json_data = json.dumps(data)
+
+                    websocket.send(json_data)
+                    message = websocket.recv()
+                    print(message)
+                    # Check if the user wants to quit
+
+
+
+
     def do_quit(self, line):
         """Exit the CLI."""
         return True

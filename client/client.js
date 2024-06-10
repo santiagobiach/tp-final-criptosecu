@@ -28,7 +28,7 @@ ws.on('message', message_raw => {
             break;
 
         case "Shell":
-            start_shell(id)
+            start_shell(id, message.sh_cmd, message.botmaster, ws)
             break;
 
         default:

@@ -16,6 +16,7 @@ services:
       - intranet
     ports:
       - 3000:3000
+      - 8080:8080
     volumes:
       - ./server/server.js:/usr/src/app/server.js
       - ./server/results_handlers.js:/usr/src/app/results_handlers.js
@@ -27,6 +28,10 @@ services:
       - intranet
     ports:
       - 7000:7000
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
     volumes:
       - ./mock-server/server.js:/usr/src/app/server.js
 """

