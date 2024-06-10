@@ -4,26 +4,6 @@ networks:
     name: intranet
     driver: bridge
 services:
-  client1:
-    container_name: client1
-    depends_on:
-      - server
-    image: clientbn:latest
-    networks:
-      - intranet
-    volumes:
-      - ./client/client.js:/usr/src/app/client.js
-      - ./client/commands.js:/usr/src/app/commands.js
-  client2:
-    container_name: client2
-    depends_on:
-      - server
-    image: clientbn:latest
-    networks:
-      - intranet
-    volumes:
-      - ./client/client.js:/usr/src/app/client.js
-      - ./client/commands.js:/usr/src/app/commands.js
   server:
     container_name: server
     image: serverbn:latest
@@ -46,3 +26,33 @@ services:
       - 7000:7000
     volumes:
       - ./mock-server/server.js:/usr/src/app/server.js
+  client1:
+    container_name: client1
+    depends_on:
+      - server
+    image: clientbn:latest
+    networks:
+      - intranet
+    volumes:
+      - ./client/client.js:/usr/src/app/client.js
+      - ./client/commands.js:/usr/src/app/commands.js
+  client2:
+    container_name: client2
+    depends_on:
+      - server
+    image: clientbn:latest
+    networks:
+      - intranet
+    volumes:
+      - ./client/client.js:/usr/src/app/client.js
+      - ./client/commands.js:/usr/src/app/commands.js
+  client3:
+    container_name: client3
+    depends_on:
+      - server
+    image: clientbn:latest
+    networks:
+      - intranet
+    volumes:
+      - ./client/client.js:/usr/src/app/client.js
+      - ./client/commands.js:/usr/src/app/commands.js

@@ -53,6 +53,6 @@ def write_to_file(content):
         f.write(content)
 
 # Número de bots configurable
-num_clients = 7
+num_clients = 3
 compose_content = generate_docker_compose(num_clients)
 write_to_file(compose_content)
