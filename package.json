@@ -4,9 +4,9 @@
   "description": "1) node server.js 2) node client.js 3) curl -X POST http://localhost:3000/send-command -H \"Content-Type: application/json\" -d '{\"id\": 1, \"command\": \"do-something\"}'",
   "main": "index.js",
   "dependencies": {
+    "basic-auth": "^2.0.1",
     "ws": "^8.17.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -25,6 +25,10 @@ services:
       - intranet
     ports:
       - 7000:7000
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
     volumes:
       - ./mock-server/server.js:/usr/src/app/server.js
   client1:
