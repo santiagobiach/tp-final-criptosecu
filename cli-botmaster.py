@@ -3,7 +3,7 @@ import json
 import os
 import requests
 import asyncio
-import websockets
+from websockets.sync.client import connect
 
 
 # URL del bot server
@@ -179,7 +179,7 @@ class BotMasterCLI(cmd.Cmd):
         if len(args_vec) < 1:
             print("Usage: shell botname")
         else:
-            with websockets.connect("ws://localhost:8080") as websocket:
+            with connect("ws://localhost:8080") as websocket:
                 print(f"({args_vec[0]})>> Type quit to exit")
                 # Loop indefinitely
                 while True:
