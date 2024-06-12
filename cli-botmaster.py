@@ -4,6 +4,7 @@ import os
 import requests
 import asyncio
 from websockets.sync.client import connect
+import ssl
 
 
 # URL del bot server
@@ -179,7 +180,8 @@ class BotMasterCLI(cmd.Cmd):
         if len(args_vec) < 1:
             print("Usage: shell botname")
         else:
-            with connect("ws://localhost:8080") as websocket:
+            ssl_context = ssl._create_unverified_context()
+            with connect("wss://localhost:8080", ssl_context=ssl_context) as websocket:
                 print(f"({args_vec[0]})>> Type quit to exit")
                 # Loop indefinitely
                 while True:
