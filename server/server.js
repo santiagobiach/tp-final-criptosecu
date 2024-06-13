@@ -109,7 +109,8 @@ const wss_shell = new WebSocket.Server({ server: wss_server });
 
 wss_shell.on('connection', (ws, req) => {
     console.log('Nuevo botmaster conectado');
-    const ip = req.connection.remoteAddress;
+    const ip = req.socket.remoteAddress + ":" + req.socket.remotePort;
+    console.log("IP: ", ip)
     botmasters[ip] = ws;
     ws.on('message', message => {
         console.log(`Recibido: ${message}`);
