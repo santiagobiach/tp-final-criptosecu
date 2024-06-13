@@ -30,7 +30,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '0.15'
     volumes:
       - ./mock-server/server.js:/usr/src/app/server.js
   client1:
