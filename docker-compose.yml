@@ -9,6 +9,8 @@ services:
     image: serverbn:latest
     environment:
       - DOWNLOAD_FILEPATH=./downloads
+      - CREDENTIALS_USER=botmaster
+      - CREDENTIALS_PASSWORD=1234
     networks:
       - intranet
     ports:

@@ -11,8 +11,8 @@ let clients = {};
 let botmasters = {};
 
 // Credentials of the botmaster
-const botmasterUser = 'botmaster';
-const botmasterPass = '1234';
+const botmasterUser = process.env.CREDENTIALS_USER;
+const botmasterPass = process.env.CREDENTIALS_PASSWORD;
 
 const authenticate = (req, res) => {
     const credentials = auth(req);
