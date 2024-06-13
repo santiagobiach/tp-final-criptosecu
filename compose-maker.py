@@ -12,6 +12,8 @@ services:
     image: serverbn:latest
     environment:
       - DOWNLOAD_FILEPATH=./downloads
+      - CREDENTIALS_USER=botmaster
+      - CREDENTIALS_PASSWORD=1234
     networks:
       - intranet
     ports:
@@ -31,7 +33,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '0.15'
     volumes:
       - ./mock-server/server.js:/usr/src/app/server.js
 """
