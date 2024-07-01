@@ -18,7 +18,8 @@ Sistema educativo que modela una botnet y como un botmaster controla y comanda a
 Recomendamos Docker Desktop para ver los logs, pero como alternativa se puede usar docker logs.
 
 ### Correr el Botmaster
-> $ python cli-botmaster.py
+> $ python3 -m pip install -r dependencies.txt
+> $ python3 cli-botmaster.py
 
 Abre una CLI para interactuar con los bots a través del server.
 Algunos de los comandos soportados son:
