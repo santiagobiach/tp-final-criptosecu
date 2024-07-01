@@ -164,7 +164,7 @@ class BotMasterCLI(cmd.Cmd):
         else:
             objective = args_vec[0]
             filename = args_vec[1]
-            response = requests.get(url + f"/download?objective={objective}&filename={filename}", auth=auth_credentials, verify=False)
+            response = requests.get(url + f"download?objective={objective}&filename={filename}", auth=auth_credentials, verify=False)
             print(response.json())
             directory = f"downloads"
             try:
@@ -225,7 +225,7 @@ def parse_args(args):
 
 def send_command(body):
     json_payload = json.dumps(body)
-    response = requests.post(url + "/send-command", data=json_payload, auth=auth_credentials, verify=False)
+    response = requests.post(url + "send-command", data=json_payload, auth=auth_credentials, verify=False)
     if response.status_code == 200:
         print("Request was successful")
         print("Response:", response.json())
