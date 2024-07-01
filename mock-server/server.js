@@ -22,7 +22,7 @@ const server = http.createServer((req, res) => {
     }
 });
 
-const port = 7000;
+const port = 7654;
 server.listen(port, () => {
     console.log("Server creado");
 });

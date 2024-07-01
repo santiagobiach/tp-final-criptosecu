@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 
 # URL of the server
-url = 'http://localhost:7000/'
+url = 'http://localhost:7654/'
 
 # Send requests indefinitely and measure response time
 while True:

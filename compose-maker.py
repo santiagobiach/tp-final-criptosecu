@@ -29,7 +29,7 @@ services:
     networks:
       - intranet
     ports:
-      - 7000:7000
+      - 7654:7654
     deploy:
       resources:
         limits:
